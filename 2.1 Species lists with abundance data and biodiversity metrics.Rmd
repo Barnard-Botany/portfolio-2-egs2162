@@ -23,14 +23,14 @@ I asked for the variable length, which is 23. That tells us that there are 23 in
 
 ```{r}
 #Now we want to figure out something about abundances within species. Let's figure out, simply by counting,  how many individuals there are of each species. This is a measure of the abundance of each species. For this, we use the function "count" which is in a package called PLYR, which we must first load. Once that's done,  we create a new variable which has the count of each species
-#library(plyr)
+library(plyr)
 one
-one.ab=count(one)
-one.ab
+one.ab=count(one) # count: finds # unique (ie. how many diff letters) and frequency
+one.ab # created ^ but is the abuncance data (a dataframe) 
 class(one.ab)
 length(one.ab)
 #We might also want to get a list of species, and the length of that list (which is species richness). 
-one.u=unique(one)
+one.u=unique(one) # list of unique species
 one.u
 length(one.u)
 attributes(one.ab)
@@ -38,11 +38,11 @@ attributes(one.ab)
 
 ```{R}
 #But before we do the combining, we must add a variable to allow keeping track of which sample is which
-one.ab=data.frame("one", one.ab)
+one.ab=data.frame("one", one.ab) # add a column that says one (to tell which sample)
 one.ab
 #This added a first column with every row populated by the string variable "one"
 #Let's also re-name columns. Later, our analyses of species richenss will need specifically named variables. 
-names(one.ab)<-c("ListID", "SpeciesID", "Freq")
+names(one.ab)<-c("ListID", "SpeciesID", "Freq") # going to rename all column headings
 one.ab
 ```
 
@@ -50,32 +50,32 @@ Now let's do that for another sample:
 
 ```{r}
 three=c("A","A","A","A","A","A","B","B","B","B","B","B","B","C","C","C","C","C","C","C","D","E","F","G","Q")
-three.ab=count(three)
+three.ab=count(three) # abundance data frame
 three.ab
 #We might also want to get a list of species, and the length of that list (which is species richness). 
-three.u=unique(three)
+three.u=unique(three) # find unique elements
 three.u
-length(three.u)
+length(three.u) # getting # of unique elements from list of unique elements (three.u)
 ```
 
 
 ```{R}
 #We can combine two files and compare them. 
 #Once again, let's add a variable to allow keeping track of which sample is which
-three.ab=data.frame("three", three.ab)
+three.ab=data.frame("three", three.ab) # adding column identifier (ie. sample number)
 three.ab
 names(three.ab)<-c("ListID", "SpeciesID", "Freq")
-#And then combine the two variables into one
-ab=rbind(one.ab, three.ab)
-ab
-dim(ab)
+#And then combine the two variables into one  
+ab=rbind(one.ab, three.ab) # combine list one and three into one
+ab # "print"/show data
+dim(ab) # ask about how wide and long it is
 #A powerful function in LABDSV converts this list of sample IDs, species and site-specific abundances into a matrix in which species names are column headings, and row names are samples. To do this, it creates a master list of all species in all samples. A matrix like this is useful for quantifying multiple aspects of biodiversity -- alpha and beta and gamma. 
 #So be sure to load the LABDSV package
 library(labdsv)
-abundance<-matrify(ab)
+abundance<-matrify(ab) # using data frame "ab" and formatting it into a matrix
 abundance
 #If we look at the dimensions of this matrix, what does it mean? What is 2? What is 9?
-dim(abundance)
+dim(abundance) # gives dimensions (# variables) of abundance (ie. 16 x 3 now)
 ```
 
 
@@ -115,10 +115,10 @@ Q         0     0/23 = 0          0        0
 You can try doing a similar calculation for Sample "three" and then compare to the values obtained from R using the VEGAN package
 
 ```{r}
-#library(vegan)
-abundance
-shannon<-diversity(abundance, index = "shannon")
-shannon
+library(vegan) # has shannon index as a function
+abundance # print/display
+shannon<-diversity(abundance, index = "shannon") # reference data frame and then index type
+shannon # gives index values for each column (ie. samples one and three )
 ```
 				
 
@@ -180,7 +180,7 @@ length(five.u)
 
 ```{R}
 #Let's add more data so we can continue to delve into what can be donetwo.ab
-#Repeating what we did earlier, to process these lists so that we can incorporate them into an abundance matrix
+#Repeating what we did earlier, to process these lists so that we can incorporate them into an abundance matrix [reshape with list id and column heading]
 two.ab=data.frame("two", two.ab)
 two.ab
 five.ab=data.frame("five", five.ab)
@@ -191,11 +191,11 @@ one.ab
 three.ab
 two.ab
 five.ab
-ab=rbind(one.ab, three.ab, two.ab, five.ab)
+ab=rbind(one.ab, three.ab, two.ab, five.ab) # recycling/redefining "ab"
 ab
 dim(ab)
 #ab<-ab[,2:4]
-abundance<-matrify(ab)
+abundance<-matrify(ab) # recycling the name abundance (redefining); make matrix from new ab
 abundance
 ```
 
@@ -203,7 +203,7 @@ abundance
 
 As mentioned before, this type of abundance matrix combined with PACKAGE VEGAN is powerful.
 
-What can we do with this bigger matrix? For starters, we can use an index to measure the similarity (or dissimilarity) of any two pairs of lists in the matrix
+What can we do with this bigger matrix? For starters, we can use an index to measure the similarity (or dissimilarity) of any two pairs of lists in the matrix [PAIRWISE COMPARISON]
 
 There are many different ways to measure community similarity or dissimilarity. 
 
@@ -237,7 +237,7 @@ sum           23             25              22
 Bray-Curtis = 22/(23+25) = 0.458
 
 
-A simple pairwise index that uses only presence-absence data is called Jaccard's Coefficient of similarity, J. 
+A simple pairwise index that uses ONLY presence-absence data is called Jaccard's Coefficient of similarity, J. (a BINARY system - just yes or no)
 
 J = a / (n - d)
 
@@ -273,17 +273,17 @@ There are many other ways to measure pair-wise similarities.
 If there are more than two lists, it's possible to put together a matrix of pair-wise values for the index, which is what the code below does. 
 
 ```{r}
-#the function vegdist is used on the matrix, the metric specified. The assumption is that the data are abundance data, even though some indices require binary data. So the unstated and default argument that is always used in vegdist is that  binary=FALSE. This can and should be changed if computing a presence-absence metric like Jaccard.
+#the function vegdist is used on the matrix, the metric specified. The assumption is that the data are abundance data, even though some indices require binary data. So the unstated and default argument that is always used in vegdist is that  binary=FALSE. This can and should be changed if computing a presence-absence metric like Jaccard. (vegdist = "vegan" and "distance")
 bray = vegdist(abundance, "bray") 
 bray
-jaccard = vegdist(abundance, "jaccard", binary=T)
+jaccard = vegdist(abundance, "jaccard", binary=T) # must specify to treat "abundance" as binary
 jaccard
 ```
 
 
 
 ```{r}
-#Now that there are four samples, it makes sense to start seeing if this is enough samples to gauge diversity across these samples. Vegan can compute the cumulative number of species across all four, and then plot them. It will take the plots in random order. Other options for this method argument include "collector" which is the order in which they are entered into the matrix. Another is "rarefaction" which will adjust to take into account that each sample may have a different number of individuals.
+#Now that there are four samples, it makes sense to start seeing if this is enough samples to gauge diversity across these samples. Vegan can compute the cumulative number of species across all four, and then plot them. It will take the plots in random order. Other options for this method argument include "collector" which is the order in which they are entered into the matrix. Another is "rarefaction" which will adjust to take into account that each sample may have a different number of individuals. [getting vegan to plot for us]
 accurve<-specaccum(abundance, method="random", permutations=100)
 plot(accurve$sites, accurve$richness,
      xlab="Number of Sites",
@@ -301,7 +301,7 @@ plot(accurve2$sites, accurve$richness,
 
 #### NMDS Ordination (non-metric multi-dimensional scale)
 
-This is some advanced stuff in terms of statistics, but what's powerful and fairly intuitive are the plots that you can get using this NMDS analysis which uses the vegan function called metaMDS.
+This is some advanced stuff in terms of statistics, but what's powerful and fairly intuitive are the plots that you can get using this NMDS analysis which uses the vegan function called metaMDS. [going to run statistics and turn data into pseudo variables to plot numbers in model]
 
 ```{r}
 head(abundance)
@@ -319,12 +319,12 @@ test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially 
 points(test.plot, "sites", col="blue", cex=0.9)
 
 test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
-points(test.plot, "species", pch=21, col="red", bg="yellow")
-text(test.plot, "sites", col="blue", cex=0.9)
+points(test.plot, "species", pch=21, col="red", bg="yellow") 
+text(test.plot, "sites", col="blue", cex=0.9) # plots names for sample data
 
 test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
-text(test.plot, "species", pch=21, col="red", bg="yellow")
-points(test.plot, "sites", col="blue", cex=0.9)
+text(test.plot, "species", pch=21, col="red", bg="yellow") # plots species letter
+points(test.plot, "sites", col="blue", cex=0.9) # plots point
 
 
 ```
@@ -338,7 +338,7 @@ In other words, two or more samples with a similar species composition and speci
 ## Switching to real species data: County occurrence data from BIEN
 
 ```{r}
-#library("bien")
+library("BIEN")
 #As you know, you can obtain species occurrence data from the BIEN database, or from another even more comprehensive data base called gbif (gbif.org). Occurrence data is a type of abundance data, and it can also be used to figure out presence-absence data. 
 bronx <- BIEN_occurrence_county(country="United States", state="New York", county = "Bronx")
 head(bronx)
@@ -358,7 +358,7 @@ attributes(westchester)
 ```{r}
 #library(BIEN)
 #We previously learned to "slim down" data sets to one or a few variables, which we can do here
-bronx.occ=bronx[c(1)]
+bronx.occ=bronx[c(1)] # cut just first column (i.e. species binomial) [recycle variable]
 head(bronx.occ)
 manhattan.occ=manhattan[c(1)]
 head(manhattan.occ)
@@ -385,12 +385,12 @@ westchester.ab=data.frame("westchester", westchester.ab)
 head(westchester.ab)
 names(westchester.ab)<-c("ListID", "SpeciesID", "Freq")
 head(westchester.ab)
-threecounty.ab=rbind(bronx.ab, manhattan.ab, westchester.ab)
+threecounty.ab=rbind(bronx.ab, manhattan.ab, westchester.ab) # group 3 counties 
 head(threecounty.ab)
 tail(threecounty.ab)
 dim(threecounty.ab)
 #This powerful function matrify is going to convert this list of species with their site-specific abundances into a matrix with the species as the column headings, the rows as the samples. This gives a long sample list
-urban.ab<-matrify(threecounty.ab)
+urban.ab<-matrify(threecounty.ab) # making matrix from 3 counties data frame
 urban.ab
 #If we look at the dimensions of this matrix, what does it mean? What is 2? What is 9?
 dim(urban.ab)
@@ -403,11 +403,10 @@ bray
 jaccard = vegdist(urban.ab, "jaccard", binary=T)
 jaccard
 
-
 ```
 
 ```{r}
-write.csv(threecounty.ab, file = "threecounty.csv")
+write.csv(threecounty.ab, file = "threecounty.csv") # saving as "comma separated file"
 ```
 
 What if you wanted to save the abundance matrix as well?
@@ -429,7 +428,7 @@ tail(MH)
 
 ```{r}
 #Since the genus name and species names were in separate columns, I'm going to paste them back together
-speciesID=paste(MH$Scientific, MH$Name, sep=" ")
+speciesID=paste(MH$Scientific, MH$Name, sep=" ") # turns two strings into 1
 speciesID
 ```
 
@@ -499,3 +498,144 @@ How do you interpret the indices computed for the County data?
 Now process the other three lists in the same fashion.
 
 How do you interpret indices computed from your second type of data? 
+
+
+```{r}
+
+# loading data and packages 
+# if you could run this before running the other sets of data, that would be wonderful; then each dataset is in its own block (see bleow)
+
+library(plyr)
+library(labdsv)
+library(vegan)
+library("BIEN")
+
+# get data (for P1) - may take a moment!
+sonoma <- BIEN_occurrence_county(country="United States", state="California", county = "Sonoma")
+mendocino <- BIEN_occurrence_county(country="United States", state="California", county = "Mendocino")
+humboldt <- BIEN_occurrence_county(country="United States", state="California", county = "Humboldt")
+
+```
+
+```{r}
+# code to process data for P1
+
+# cut data so its just species list
+sonoma.occ = sonoma[c(1)]
+mendocino.occ = mendocino[c(1)]
+humboldt.occ = humboldt[c(1)]
+
+# test/display
+#sonoma.occ
+#mendocino.occ
+#humboldt.occ
+
+# convert to abundance matrix
+sonoma.ab = count(sonoma.occ)
+mendocino.ab = count(mendocino.occ)
+humboldt.ab = count(humboldt.occ)
+
+# test/display
+#sonoma.ab
+#mendocino.ab
+#humboldt.ab
+
+# format as a table
+sonoma.ab=data.frame("SONOMA", sonoma.ab)
+names(sonoma.ab)<-c("ListID", "SpeciesID", "Freq")
+mendocino.ab=data.frame("MENDOCINO", mendocino.ab)
+names(mendocino.ab)<-c("ListID", "SpeciesID", "Freq")
+humboldt.ab=data.frame("HUMBOLDT", humboldt.ab)
+names(humboldt.ab)<-c("ListID", "SpeciesID", "Freq")
+
+# test/display
+#head(sonoma.ab)
+#head(mendocino.ab)
+#head(humboldt.ab)
+
+# group 3 counties and make matrix
+threecounty.ab=rbind(sonoma.ab, mendocino.ab, humboldt.ab)
+northernCA.ab<-matrify(threecounty.ab) # making matrix from 3 counties data frame
+northernCA.ab
+
+# statistics
+simpson<-diversity(northernCA.ab, index = "simpson")
+shannon<-diversity(northernCA.ab, index = "shannon")
+bray = vegdist(northernCA.ab, "bray")
+jaccard = vegdist(northernCA.ab, "jaccard", binary=T)
+
+# display
+print("Simpson Index:")
+simpson
+print("Shannon Index:")
+shannon
+print("Bray Index:")
+bray
+print("Jaccard Index:")
+jaccard
+
+```
+
+
+```{r}
+
+# code to process data for P2
+
+# read files
+LibertyFile=read.csv("bison-LibertyCounty_County_Florida.csv")
+NassauFile=read.csv("bison-NassauCounty_County_NewYork.csv")
+PacificFile=read.csv("bison-PacificCounty_County_Washington.csv")
+
+# make species lists/occurance data
+Liberty.occ = (LibertyFile$scientificName)
+Nassau.occ = (NassauFile$scientificName)
+Pacific.occ = (PacificFile$scientificName)
+
+# convert to abundance matrix
+Liberty.ab = count(Liberty.occ)
+Nassau.ab = count(Nassau.occ)
+Pacific.ab = count(Pacific.occ)
+
+# format into a table 
+Liberty.ab = data.frame("LIBERTY", Liberty.ab)
+names(Liberty.ab)<-c("ListID", "SpeciesID", "Freq")
+Nassau.ab = data.frame("NASSAU", Nassau.ab)
+names(Nassau.ab)<-c("ListID", "SpeciesID", "Freq")
+Pacific.ab = data.frame("PACIFIC", Pacific.ab)
+names(Pacific.ab)<-c("ListID", "SpeciesID", "Freq")
+
+# combine 3 lists into one
+ThreeSites=rbind(Liberty.ab, Nassau.ab, Pacific.ab)
+dim(ThreeSites)
+
+# run the matrify function
+Bison.ab <- matrify(ThreeSites)
+
+# statistics
+simpson<-diversity(Bison.ab, index = "simpson")
+shannon<-diversity(Bison.ab, index = "shannon")
+bray = vegdist(Bison.ab, "bray")
+jaccard = vegdist(Bison.ab, "jaccard", binary=T)
+
+# display
+print("Simpson Index:")
+simpson
+print("Shannon Index:")
+shannon
+print("Bray Index:")
+bray
+print("Jaccard Index:")
+jaccard
+
+# A note on the data: 
+# - Comes from Bison - a  site for occurance data over major species (in the US)
+# - This is data on fungi occurance in 3 counties (LIBERTY, NASSAU, and PACIFIC) of three different states (FL, NY, WA respecitvely)
+
+# comments/interpreation of Statistics
+# 1. Simpson Diversity Index: Each county shows a high diversity index (ranging 0-1), with Liberty being the most diverse and Pacific being the least (opposite from what I would have guessed in FL vs WA in fungi observances). This suggests that the combined species richness and eveness are greatest in Libery County; it is there that there is the greatest likelyhood that two random fungi occurances are the same! 
+# 2. Shannon Diversity Index: Online, I found that the typical values for the Shannon Diversity are 1.5-3.5, so all of these values (espiecaiily Libety) are quite high. Consistant with the interpretaion of the Simpson Index, the Shannon index suggests that there is both great eveness and richness in these spaces, largest in Liberty and smallest in Pacific. The big values are indicative of large P(i) values that are produced by high species eveness. 
+# 3. Bray Diversity Index:This pairwise index functions as a ratio beteween total speceis present and the overlap of species in (two) groups. A greater Bray index indicates a greater number of common species (as told by the equation). Thus, the largest value (that produced between Nassau and Liberty) are least similar in composition. Further, Liberty and Pacific share the most species, with the lowest index value. I would guess that the high index between Pacific and Liberty are a reuslt of their similar latitudes (and thus more similar/overlapping species). Correspondigly, the differences between Liberty and Nassau may be a result of their very different latitudes (and thus climates) and thus overlap of species. 
+# 4. Jaccard Diversity Index: This index seeks to find which species are shared and which are distinct through a ration of the common over the total species from both lists. Thus, the higher the index, the more similar the species. In the context of tehse results, the highest value (so that with the most overlap) is genreated between Nassau and Pacific. Opposingly, the lowest index is found betwen LIberty and Nassau, indicating the least overlap. This matches the patern of overlap that is present in the Bray Diversity Index results. 
+
+
+```
