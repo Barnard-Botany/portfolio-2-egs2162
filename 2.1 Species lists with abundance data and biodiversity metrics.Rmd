@@ -575,7 +575,7 @@ print("Jaccard Index:")
 jaccard
 
 ```
-
+# Where is your interpretation for these index values?
 
 ```{r}
 
@@ -639,3 +639,4 @@ jaccard
 
 
 ```
+# I couldn't run this code because you didn't push your .csv files to GitHub. Do that, and provide some interpretation for your county data in Part 1 for full points.
